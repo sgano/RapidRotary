@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<Form version="1.3" maxVersion="1.9" type="org.netbeans.modules.form.forminfo.JFrameFormInfo">
+  <Properties>
+    <Property name="defaultCloseOperation" type="int" value="3"/>
+    <Property name="title" type="java.lang.String" value="G94 to G93 Converter: Information and Help"/>
+  </Properties>
+  <SyntheticProperties>
+    <SyntheticProperty name="formSizePolicy" type="int" value="1"/>
+    <SyntheticProperty name="generateCenter" type="boolean" value="false"/>
+  </SyntheticProperties>
+  <AuxValues>
+    <AuxValue name="FormSettings_autoResourcing" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_autoSetComponentName" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_generateFQN" type="java.lang.Boolean" value="true"/>
+    <AuxValue name="FormSettings_generateMnemonicsCode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_i18nAutoMode" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_layoutCodeTarget" type="java.lang.Integer" value="1"/>
+    <AuxValue name="FormSettings_listenerGenerationStyle" type="java.lang.Integer" value="0"/>
+    <AuxValue name="FormSettings_variablesLocal" type="java.lang.Boolean" value="false"/>
+    <AuxValue name="FormSettings_variablesModifier" type="java.lang.Integer" value="2"/>
+  </AuxValues>
+
+  <Layout>
+    <DimensionLayout dim="0">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="0" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="541" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+    <DimensionLayout dim="1">
+      <Group type="103" groupAlignment="0" attributes="0">
+          <Group type="102" alignment="1" attributes="0">
+              <EmptySpace max="-2" attributes="0"/>
+              <Component id="jScrollPane1" pref="335" max="32767" attributes="0"/>
+              <EmptySpace max="-2" attributes="0"/>
+          </Group>
+      </Group>
+    </DimensionLayout>
+  </Layout>
+  <SubComponents>
+    <Container class="javax.swing.JScrollPane" name="jScrollPane1">
+      <AuxValues>
+        <AuxValue name="autoScrollPane" type="java.lang.Boolean" value="true"/>
+      </AuxValues>
+
+      <Layout class="org.netbeans.modules.form.compat2.layouts.support.JScrollPaneSupportLayout"/>
+      <SubComponents>
+        <Component class="javax.swing.JTextArea" name="jTextArea1">
+          <Properties>
+            <Property name="editable" type="boolean" value="false"/>
+            <Property name="columns" type="int" value="20"/>
+            <Property name="lineWrap" type="boolean" value="true"/>
+            <Property name="rows" type="int" value="5"/>
+            <Property name="text" type="java.lang.String" value="Does your rotary axis jog quickly but then when running jobs move much slower than expected?  If so this program may be able to help solve that problem!&#xa;&#xa;---------------------------------&#xa;Background and Problem Description&#xa;---------------------------------&#xa;&#xa;This program converts G-code from G94 (units per minute feed rate mode) to G93 (Inverse time mode).  The main difference between these two modes is that in G93 for every linear or arc move (G1, G2, or G3) that command must also specify how much time it should take to make that move.  Using G93 is advantages when a move has both linear as well as rotary components. The reason is because linear moves have units of distance while rotary moves are measured in degrees and many CAM software packages only specify feed rates in the G-code in distance units, for example F90 (in English units) would mean a rate of 90 inches per minute.  However, if you had a rotation move at the same time the controller (e.g., LinuxCNC) would interpret that to mean 90 degrees per minute.  At this rate it would take 4 minutes to make one complete revolution! That is slow!  The solution to this problem is to use inverse time where each move has a specified time to execute which is independent of the units that either axis type uses!&#xa;&#xa;I have not been able to find any hobby or mid-level CAM tools that will output G-code in G93 mode.  For indexed strategies where the rotary axis is not used much, this doesn&#x2019;t pose a big problem.  However, for some cases when there are lots of rotary movements the results are so slow that the rotary axis is almost un-useable.  People have &#x201c;gamed&#x201d; the system by ramping up the feed rates so that the rotary axis moves faster but this also means that the linear axes move much too fast and generally are then capped by their physical maximum speeds.  To solve this, issue some controllers (like Mach3 / Mach4) have options to use the z-axis to compensate the rotary axis feed rates by assuming that the Z-0 point is centered on the rotary axis and then convert linear speed to rotational speed using the arc-length of a circle with a radius equal to the current position of the z-axis.  But other controllers like LinuxCNC do not offer this option &#x2013; and that is what is the problem that this program was written to solve.&#xa;&#xa;---------------------------------&#xa;Summary of what Rapid Rotary does:&#xa;---------------------------------&#xa;&#xa;This application does not alter any of the positions in the G-code movement commands.  It instead converts from G94 to G93 by calculating the distance the tool travels for each line and using the last feed rate specified to calculate the time it should take the tool to complete that movement.  For rotary moves the program uses the z-axis position (as the radius value) to convert from rotational units (angles) to distance.  This allows for constant tool tip feed rates even for complex geometries and results in slower A-axis rotations when machining larger diameter sections of a part and faster A-axis rotations when machining smaller diameter areas.  &#xa;&#xa;The program has an entry field where the user can specify the Z-zero offset from the rotary axis.  If this value is 0.0 (default) then the G-code was calculated with the Z-zero point on the rotary axis.  If the Z-zero position is on the material surface, then the user should set this offset value to be the radius of the material.&#xa;&#xa;---------------------------------&#xa;How to use the program:&#xa;---------------------------------&#xa;&#xa;1) Generate the g-code (.ngc) for your part using your CAM software. Be sure to use a compatible post processor (see the limitations section).  &#xa;2) Start the Rapid Rotary application, and select the top &#x201c;Browse&#x201d; button and locate the file created in step 1.  The output file is automatically set with a &#x201c;_G93&#x201d; added to the file name which you can change by selecting the second &#x201c;Browse&#x201d; button if you want.&#xa;3) Set the Z-zero offset value used with modeling the part.  If the Z-zero is on the rotary axis then leave the 0.0 (default) value.  If the Z-zero is on the surface of the material, then set this value to be the material&#x2019;s radius.&#xa;4) Select a conversion method.  Normally this will be the default &#x201c;Use G93 for the entire file&#x201d; which is useful when the job has lots of rotary movements.  However, if the job only has a few rotational cuts it might be more efficient to wrap each line in G93 instead.  In that case choose the second option &#x201c;Warp each rotary move in G93&#x201d;.&#xa;5) Specify the units for the project in either inches or millimeters (mm).   This is mainly used for tolerance and error checking scaling as the majority of the conversion is not reliant on the underlying model units.&#xa;6) Select a value for the &quot;F value output decimal digits&quot; combo box.  This option changes the number of digits after the decimal place that are output for the F values.  The 0 option results in outputs  of only whole numbers.   The default is 5 and should be fine for most cases.  Some controllers are limited in the number of digits they can read - which is where this option is useful.  &#xa;7) Finally press the &#x201c;Convert&#x201d; button.  A summary of the results is displayed in the bottom of the program and if there are any errors and details are also shown.&#xa;8) Manually inspect and/or test the output .ngc to be sure that there were no errors or bugs in the conversion process and that it is safe to run on your machine and setup.&#xa;&#xa;---------------------------------&#xa;What has been tested:&#xa;---------------------------------&#xa;&#xa;Rapid Rotary has been tested using a couple of example .ngc files created by  Vectric&#x2019;s v8.5 software suite (VCarve/Aspire) using the rotary wrapping feature.  The post processors I used for the testing setup are included for reference.  Then those output toolpaths were verified to run correctly on a Probotix Nebula machine with a LinuxCNC controller (v2.5).  This does not mean that it will work properly for your configuration so be sure to double check the files!&#xa;&#xa;---------------------------------&#xa;Limitations / requirements / tips and tricks:&#xa;---------------------------------&#xa;&#xa;- Supports up to four axes (X,Y,Z,A)&#xa;- Supports G01, G02, G03 movement commands (G02 and G03 are not typically used in rotary jobs however)&#xa;- requires a space between X, Y, Z, A, I, J entities in the G-code (e.g, X0.2Y0.1 is not supported) [this can be configured in your post processor, refer to the example post processor]&#xa;- Requires the input file use G94 (units per minute feed rate mode) and be specified in the input file&#xa;- Requires G17 (plane select: XY), G18 (ZX), or G19 (YZ)  to be specified at the start of the input file (supports switching in the file) (G18 and G19 added in V1.2.0)&#xa;- If a comment is found on a line, denoted by &apos;(&apos; the rest of the line is ignored and the comment is copied into the output file&#xa;"/>
+            <Property name="wrapStyleWord" type="boolean" value="true"/>
+            <Property name="caretPosition" type="int" value="0"/>
+          </Properties>
+        </Component>
+      </SubComponents>
+    </Container>
+  </SubComponents>
+</Form>
